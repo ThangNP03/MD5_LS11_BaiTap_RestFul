@@ -30,7 +30,7 @@ public class CatalogController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping("")
+    @PostMapping("/create")
     public ResponseEntity<Catalog> saveBlog(@RequestBody Catalog catalogOptional) {
         return new ResponseEntity<>(catalogService.save(catalogOptional), HttpStatus.CREATED);
     }
