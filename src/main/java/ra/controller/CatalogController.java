@@ -17,11 +17,24 @@ public class CatalogController {
     @Autowired
     private ICatalogService catalogService;
 
-    @GetMapping("")
-    public List<Catalog> findAllCatalog() {
-        return (List<Catalog>) catalogService.findAll();
-    }
 
+    @GetMapping("")
+    public ResponseEntity<Iterable<Catalog>> findAllCatalog() {
+        List<Catalog> catalogs = (List<Catalog>) catalogService.findAll();
+        if (catalogs.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(catalogs, HttpStatus.OK);
+        }
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<Catalog> findCatalogById(@PathVariable Long id){
+        Optional<Catalog> catalogOptional= catalogService.findById(id);
+        if (!catalogOptional.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(catalogOptional.get(),HttpStatus.OK);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<Catalog> findByBlogId(@PathVariable Long id) {
         Optional<Catalog> catalogOptional = catalogService.findById(id);
@@ -36,7 +49,7 @@ public class CatalogController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<Catalog> updateCustomer(@PathVariable Long id, @RequestBody Catalog catalog) {
         Optional<Catalog> customerOptional = catalogService.findById(id);
         if (!customerOptional.isPresent()) {
@@ -46,7 +59,7 @@ public class CatalogController {
         return new ResponseEntity<>(catalogService.save(catalog), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Catalog> deleteCustomer(@PathVariable Long id) {
         Optional<Catalog> customerOptional = catalogService.findById(id);
         if (!customerOptional.isPresent()) {
