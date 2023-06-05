@@ -1,26 +1,25 @@
 package ra.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 public class Catalog {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long catalogId;
     private String catalogName;
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "catalog", fetch = FetchType.EAGER)
     private List<Blog> blogs;
 
-    public Catalog(Long catalogId, String catalogName, List<Blog> blogs) {
-        this.catalogId = catalogId;
-        this.catalogName = catalogName;
-        this.blogs = blogs;
+    public Catalog() {
     }
 
-    public Catalog() {
-
+    public Catalog(String catalogName) {
+        this.catalogName = catalogName;
     }
 
     public Long getCatalogId() {
@@ -39,6 +38,7 @@ public class Catalog {
         this.catalogName = catalogName;
     }
 
+    @JsonManagedReference
     public List<Blog> getBlogs() {
         return blogs;
     }

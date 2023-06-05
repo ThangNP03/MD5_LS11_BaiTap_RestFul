@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ra.model.Catalog;
+import ra.model.ResponOject;
 import ra.service.catalog.ICatalogService;
 
 import java.util.List;
@@ -18,55 +19,49 @@ public class CatalogController {
     private ICatalogService catalogService;
 
 
+
+
     @GetMapping("")
-    public ResponseEntity<Iterable<Catalog>> findAllCatalog() {
+    public ResponseEntity<ResponOject> getAllCatalog() {
         List<Catalog> catalogs = (List<Catalog>) catalogService.findAll();
-        if (catalogs.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(catalogs, HttpStatus.OK);
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponOject("ok", "Query Successfully!", catalogs));
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Catalog> findCatalogById(@PathVariable Long id){
-        Optional<Catalog> catalogOptional= catalogService.findById(id);
-        if (!catalogOptional.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(catalogOptional.get(),HttpStatus.OK);
-    }
-    @GetMapping("/{id}")
-    public ResponseEntity<Catalog> findByBlogId(@PathVariable Long id) {
+    public ResponseEntity<ResponOject> getCatalogById(@PathVariable Long id) {
         Optional<Catalog> catalogOptional = catalogService.findById(id);
-        return catalogOptional.map(
-                        catalog -> new ResponseEntity<>(catalog, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return catalogOptional.isPresent()
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                new ResponOject("ok", "Query Successfully!", catalogOptional))
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponOject("fail", "Cannot find catalog with id = " + id, ""));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Catalog> saveBlog(@RequestBody Catalog catalogOptional) {
-        return new ResponseEntity<>(catalogService.save(catalogOptional), HttpStatus.CREATED);
+    @PostMapping("")
+    public ResponseEntity<ResponOject> postForCatalog(@RequestBody Catalog catalog) {
+        Catalog newCatalog = catalogService.save(catalog);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponOject("ok", "Post catalog successfully!", newCatalog));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponOject> putForCatalog(@RequestBody Catalog catalog, @PathVariable Long id) {
+        Optional<Catalog> catalogOptional = catalogService.findById(id);
+        return catalogOptional.isPresent()
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                new ResponOject("ok", "Update catalog successfully!", catalogService.save(catalog)))
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponOject("fail", "Cannot find catalog with id = " + id, ""));
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Catalog> updateCustomer(@PathVariable Long id, @RequestBody Catalog catalog) {
-        Optional<Catalog> customerOptional = catalogService.findById(id);
-        if (!customerOptional.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        catalog.setCatalogId(customerOptional.get().getCatalogId());
-        return new ResponseEntity<>(catalogService.save(catalog), HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Catalog> deleteCustomer(@PathVariable Long id) {
-        Optional<Catalog> customerOptional = catalogService.findById(id);
-        if (!customerOptional.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        catalogService.delete(id);
-        return new ResponseEntity<>(customerOptional.get(), HttpStatus.NO_CONTENT);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponOject> deleteForCatalog(@PathVariable Long id) {
+        Optional<Catalog> catalogOptional = catalogService.findById(id);
+        return catalogOptional.isPresent()
+                ? ResponseEntity.status(HttpStatus.OK).body(
+                new ResponOject("ok", "Delete catalog successfully!", ""))
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponOject("fail", "Cannot find catalog with id = " + id, ""));
     }
 
 }

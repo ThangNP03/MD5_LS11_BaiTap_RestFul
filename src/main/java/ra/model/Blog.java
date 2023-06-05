@@ -1,16 +1,21 @@
 package ra.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
-;
+;import java.time.LocalDate;
 
 @Entity
 public class Blog {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long blogId;
     private String title;
     private String content;
-    private String favorite;
+
+    @Column(columnDefinition = "date")
+    private String postDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "catalog_id")
@@ -19,12 +24,10 @@ public class Blog {
     public Blog() {
     }
 
-    public Blog(Long blogId, String title, String content, String favorite, Catalog catalog) {
-        this.blogId = blogId;
+    public Blog(String title, String content) {
         this.title = title;
         this.content = content;
-        this.favorite = favorite;
-        this.catalog = catalog;
+        this.postDate = LocalDate.now().toString();
     }
 
     public Long getBlogId() {
@@ -51,14 +54,15 @@ public class Blog {
         this.content = content;
     }
 
-    public String getFavorite() {
-        return favorite;
+    public String getPostDate() {
+        return postDate;
     }
 
-    public void setFavorite(String favorite) {
-        this.favorite = favorite;
+    public void setPostDate(String postDate) {
+        this.postDate = postDate;
     }
 
+    @JsonBackReference
     public Catalog getCatalog() {
         return catalog;
     }
